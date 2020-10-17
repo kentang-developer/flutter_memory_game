@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_memory_game/model/board_item_model.dart';
 import 'package:flutter_memory_game/widgets/board_item.dart';
@@ -15,15 +17,18 @@ class _LandingPageState extends State<LandingPage> {
   //4 : 12 items
   int numberItem = 8; // 8 numberItem akan membuat 16 items (karena pair)
 
+  int currentScore = 0;
+
   //berisi semua board item yang ada di puzzle
   List<BoardItemModel> boardPuzzle = [];
 
   //berisi board item yang dipilih, tetapi belum complete
   List<BoardItemModel> chosenItem = [];
+  Timer timeDelayed;
 
   @override
   void initState() {
-    getChosenItem();
+    onPlay();
     super.initState();
   }
 
@@ -36,6 +41,9 @@ class _LandingPageState extends State<LandingPage> {
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
           child: Column(
             children: <Widget>[
+              Container(
+                  alignment: Alignment.topLeft,
+                  child: Text("Score: $currentScore/${numberItem * 100}")),
               GridView(
                 shrinkWrap: true,
                 //physics: ClampingScrollPhysics(),
@@ -54,7 +62,7 @@ class _LandingPageState extends State<LandingPage> {
               FlatButton(
                 child: Text('Play', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
-                onPressed: () => getChosenItem(),
+                onPressed: () => onPlay(),
               ),
             ],
           ),
@@ -65,7 +73,7 @@ class _LandingPageState extends State<LandingPage> {
 
   void onItemTap(int index) {
     var selectedItem = boardPuzzle[index];
-    if (!selectedItem.isCompleted) {
+    if (!selectedItem.isCompleted && !selectedItem.isRevealed) {
       closePreviousChosenItem();
       setState(() {
         selectedItem.setRevealed(true);
@@ -73,20 +81,44 @@ class _LandingPageState extends State<LandingPage> {
         if (chosenItem.length == 2) {
           //jika 2 item telah dipilih
           if (chosenItem[0].imagePath == chosenItem[1].imagePath) {
-            chosenItem[0].setCompleted(true);
-            chosenItem[1].setCompleted(true);
+            onItemCompleted();
           } else {
-            Future.delayed(const Duration(seconds: 2), () {
+            if (timeDelayed != null) {
+              timeDelayed.cancel();
+            }
+            timeDelayed = Timer(Duration(seconds: 2), () {
               closePreviousChosenItem();
             });
+            // and later, before the timer goes off...
+
           }
         }
       });
     }
   }
 
-  void closePreviousChosenItem(){
-    if(chosenItem.length == 2) {
+  void onItemCompleted() {
+    if (chosenItem.length == 2) {
+      setState(() {
+        chosenItem[0].setCompleted(true);
+        chosenItem[1].setCompleted(true);
+        chosenItem.clear();
+
+        //score
+        currentScore += 100;
+        if (currentScore == numberItem) {
+          onCompleted();
+        }
+      });
+    }
+  }
+
+  void onCompleted() {
+    print("oncompleted");
+  }
+
+  void closePreviousChosenItem() {
+    if (chosenItem.length == 2) {
       setState(() {
         chosenItem[0].setRevealed(false);
         chosenItem[1].setRevealed(false);
@@ -95,7 +127,7 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  void getChosenItem() {
+  void onPlay() {
     List<BoardItemModel> allItem = [];
     for (int x = 1; x < 40; x++) {
       allItem.add(BoardItemModel(imagePath: "assets/$x.webp"));
@@ -104,6 +136,7 @@ class _LandingPageState extends State<LandingPage> {
 
     //clear choosenItem
     boardPuzzle = [];
+    currentScore = 0;
 
     //Acak allItem, dan ambil numberItem teratas (misal 8 teratas)
     var randomItem = (allItem..shuffle()).take(numberItem);
