@@ -6,8 +6,12 @@ class BoardItemModel {
   BoardItemModel(
       {this.imagePath, this.isRevealed = false, this.isCompleted = false});
 
-  void setCompleted(bool completed) {
-    isCompleted = completed;
+  void setCompleted(bool isCompleted) {
+    this.isCompleted = isCompleted;
+  }
+
+  void setRevealed(bool isRevealed) {
+    this.isRevealed = isRevealed;
   }
 
   BoardItemModel copy() {

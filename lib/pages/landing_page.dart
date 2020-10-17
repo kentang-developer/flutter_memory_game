@@ -14,6 +14,11 @@ class _LandingPageState extends State<LandingPage> {
   //3 : 10 items
   //4 : 12 items
   int numberItem = 8; // 8 numberItem akan membuat 16 items (karena pair)
+
+  //berisi semua board item yang ada di puzzle
+  List<BoardItemModel> boardPuzzle = [];
+
+  //berisi board item yang dipilih, tetapi belum complete
   List<BoardItemModel> chosenItem = [];
 
   @override
@@ -37,9 +42,9 @@ class _LandingPageState extends State<LandingPage> {
                 scrollDirection: Axis.vertical,
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     mainAxisSpacing: 0.0, maxCrossAxisExtent: 100.0),
-                children: List.generate(chosenItem.length, (index) {
+                children: List.generate(boardPuzzle.length, (index) {
                   return BoardItem(
-                    itemModel: chosenItem[index],
+                    itemModel: boardPuzzle[index],
                     onTap: () {
                       onItemTap(index);
                     },
@@ -59,13 +64,35 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void onItemTap(int index) {
-    setState(() {
-      chosenItem[index].setCompleted(true);
-    });
+    var selectedItem = boardPuzzle[index];
+    if (!selectedItem.isCompleted) {
+      closePreviousChosenItem();
+      setState(() {
+        selectedItem.setRevealed(true);
+        chosenItem.add(selectedItem);
+        if (chosenItem.length == 2) {
+          //jika 2 item telah dipilih
+          if (chosenItem[0].imagePath == chosenItem[1].imagePath) {
+            chosenItem[0].setCompleted(true);
+            chosenItem[1].setCompleted(true);
+          } else {
+            Future.delayed(const Duration(seconds: 2), () {
+              closePreviousChosenItem();
+            });
+          }
+        }
+      });
+    }
   }
 
-  void getAllItem() {
-    //ambil semua gambar yang ada dan masukan ke array
+  void closePreviousChosenItem(){
+    if(chosenItem.length == 2) {
+      setState(() {
+        chosenItem[0].setRevealed(false);
+        chosenItem[1].setRevealed(false);
+        chosenItem.clear();
+      });
+    }
   }
 
   void getChosenItem() {
@@ -76,17 +103,17 @@ class _LandingPageState extends State<LandingPage> {
     //method untuk mngambil gambar secara acak dari arrayAllitem sebanyak numberItem
 
     //clear choosenItem
-    chosenItem = [];
+    boardPuzzle = [];
 
     //Acak allItem, dan ambil numberItem teratas (misal 8 teratas)
     var randomItem = (allItem..shuffle()).take(numberItem);
 
     //tambahkan 2x karena item nya berpasangan.
-    chosenItem.addAll(randomItem);
-    chosenItem.addAll(randomItem.map((item) => item.copy()).toList());
+    boardPuzzle.addAll(randomItem);
+    boardPuzzle.addAll(randomItem.map((item) => item.copy()).toList());
 
     setState(() {
-      chosenItem.shuffle();
+      boardPuzzle.shuffle();
     });
   }
 }
