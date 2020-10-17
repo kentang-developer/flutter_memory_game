@@ -15,11 +15,9 @@ class _LandingPageState extends State<LandingPage> {
   //4 : 12 items
   int numberItem = 8; // 8 numberItem akan membuat 16 items (karena pair)
   List<BoardItemModel> chosenItem = [];
-  List<BoardItemModel> allItem = [];
 
   @override
   void initState() {
-    getAllItem();
     getChosenItem();
     super.initState();
   }
@@ -41,7 +39,10 @@ class _LandingPageState extends State<LandingPage> {
                     mainAxisSpacing: 0.0, maxCrossAxisExtent: 100.0),
                 children: List.generate(chosenItem.length, (index) {
                   return BoardItem(
-                    imagePath: chosenItem[index].imagePath,
+                    itemModel: chosenItem[index],
+                    onTap: () {
+                      onItemTap(index);
+                    },
                   );
                 }),
               ),
@@ -57,16 +58,21 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
+  void onItemTap(int index) {
+    setState(() {
+      chosenItem[index].setCompleted(true);
+    });
+  }
+
   void getAllItem() {
     //ambil semua gambar yang ada dan masukan ke array
+  }
+
+  void getChosenItem() {
+    List<BoardItemModel> allItem = [];
     for (int x = 1; x < 40; x++) {
       allItem.add(BoardItemModel(imagePath: "assets/$x.webp"));
     }
-  }
-
-
-
-  void getChosenItem() {
     //method untuk mngambil gambar secara acak dari arrayAllitem sebanyak numberItem
 
     //clear choosenItem
@@ -77,7 +83,7 @@ class _LandingPageState extends State<LandingPage> {
 
     //tambahkan 2x karena item nya berpasangan.
     chosenItem.addAll(randomItem);
-    chosenItem.addAll(randomItem);
+    chosenItem.addAll(randomItem.map((item) => item.copy()).toList());
 
     setState(() {
       chosenItem.shuffle();
