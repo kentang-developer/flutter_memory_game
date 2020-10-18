@@ -19,6 +19,8 @@ class _LandingPageState extends State<LandingPage> {
 
   int currentScore = 0;
 
+  String status;
+
   //berisi semua board item yang ada di puzzle
   List<BoardItemModel> boardPuzzle = [];
 
@@ -28,7 +30,10 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   void initState() {
-    onPlay();
+    setUpBoard();
+    setState(() {
+      status = "Ketuk Play untuk bermain";
+    });
     super.initState();
   }
 
@@ -64,6 +69,7 @@ class _LandingPageState extends State<LandingPage> {
                 color: Colors.blue,
                 onPressed: () => onPlay(),
               ),
+              Text(status),
             ],
           ),
         ),
@@ -106,7 +112,7 @@ class _LandingPageState extends State<LandingPage> {
 
         //score
         currentScore += 100;
-        if (currentScore == numberItem) {
+        if (currentScore == numberItem * 100) {
           onCompleted();
         }
       });
@@ -115,6 +121,9 @@ class _LandingPageState extends State<LandingPage> {
 
   void onCompleted() {
     print("oncompleted");
+    setState(() {
+      status = "Permainan Selesai, Ketuk play untuk bermain lagi...";
+    });
   }
 
   void closePreviousChosenItem() {
@@ -127,7 +136,7 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  void onPlay() {
+  void setUpBoard(){
     List<BoardItemModel> allItem = [];
     for (int x = 1; x < 40; x++) {
       allItem.add(BoardItemModel(imagePath: "assets/$x.webp"));
@@ -147,6 +156,34 @@ class _LandingPageState extends State<LandingPage> {
 
     setState(() {
       boardPuzzle.shuffle();
+    });
+  }
+
+  void onPlay() {
+    setUpBoard();
+    //reveal for first 3 sec
+
+    boardPuzzle.forEach((element) {
+      setState(() {
+        element.isRevealed = true;
+        setState(() {
+          status = "Ingat gambarnya dalam 3 detik...";
+        });
+      });
+    });
+
+    if (timeDelayed != null) {
+      timeDelayed.cancel();
+    }
+    timeDelayed = Timer(Duration(seconds: 3), () {
+      boardPuzzle.forEach((element) {
+        setState(() {
+          element.isRevealed = false;
+          setState(() {
+            status = "Temukan pasangan gambar !";
+          });
+        });
+      });
     });
   }
 }
