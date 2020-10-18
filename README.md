@@ -4,6 +4,4 @@ Memory game flutter
 
 
 
-Step 1. Project INIT.
-
-Step 2. Mengambil gambar secara acak dan memasukan ke board.
+Part 1. Project INIT and seutup.
