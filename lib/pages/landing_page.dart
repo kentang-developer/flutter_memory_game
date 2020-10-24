@@ -40,6 +40,7 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Game Ingat2"),),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
