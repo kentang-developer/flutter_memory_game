@@ -10,20 +10,13 @@ class BoardItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onImageTap,
+      onTap: onTap,
       child: Container(
         margin: EdgeInsets.all(5),
-        child: Container(
-          color: Colors.white,
-          child: Image.asset(itemModel.isRevealed || itemModel.isCompleted
-              ? itemModel.imagePath
-              : "assets/question.webp"),
-        ),
+        child: Image.asset(itemModel.isRevealed || itemModel.isCompleted
+            ? itemModel.imagePath
+            : "assets/question.webp"),
       ),
     );
-  }
-
-  void onImageTap() {
-    onTap();
   }
 }
