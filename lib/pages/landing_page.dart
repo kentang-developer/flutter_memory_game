@@ -36,10 +36,9 @@ class _LandingPageState extends State<LandingPage> {
               scrollDirection: Axis.vertical,
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   mainAxisSpacing: 0.0, maxCrossAxisExtent: 100.0),
-              children: List.generate(16, (index) {
+              children: List.generate(boardPuzzle.length, (index) {
                 return BoardItem(
-                  itemModel:
-                      BoardItemModel(imagePath: "assets/${index + 1}.webp"),
+                  itemModel: boardPuzzle[index],
                 );
               }),
             ),
